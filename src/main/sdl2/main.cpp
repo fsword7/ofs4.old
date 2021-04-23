@@ -10,7 +10,7 @@ void init()
     SDL_Init(SDL_INIT_EVERYTHING);
 
     ctx = new osd::vk::Context();
-    window = ctx->createWindow();
+    window = ctx->createWindow(APP_SHORT, OFSW_WIDTH, OFSW_HEIGHT);
 
     ctx->init();
 }
@@ -18,7 +18,6 @@ void init()
 void cleanup()
 {
     ctx->cleanup();
-    ctx->destoryWundow();
     delete ctx;
 
     SDL_Quit();

@@ -4,17 +4,23 @@
 
 using namespace osd::vk;
 
-SDL_Window *Context::createWindow()
+SDL_Window *SDL2_Interface::createWindow(cchar_t *appName, int width, int height)
 {
-    window = SDL_CreateWindow(APP_SHORT, 
+    window = SDL_CreateWindow(appName, 
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        OFSW_WIDTH, OFSW_HEIGHT, SDL_WINDOW_VULKAN);
+        width, height, SDL_WINDOW_VULKAN);
     SDL_ShowWindow(window);
 
     return window;
 }
 
-void Context::destoryWundow()
+void SDL2_Interface::destroyWindow()
 {
     SDL_DestroyWindow(window);
+}
+
+void SDL2_Interface::createSurface(VkInstance instance)
+{
+    if (!SDL_Vulkan_CreateSurface(window, instance, &surface))
+        throw std::runtime_error("Can't create surface - aborted!");
 }
