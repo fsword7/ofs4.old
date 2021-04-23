@@ -20,10 +20,14 @@ void Context::init()
     createSurface(instance);
     getPhysicalGPUDevice();
     createLogicalDevice();
+
+    createSwapChain();
 }
 
 void Context::cleanup()
 {
+    cleanupSwapChain(true);
+
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
@@ -71,8 +75,9 @@ void Context::getPhysicalGPUDevice()
 
 void Context::createLogicalDevice()
 {
-    QueueFamilyIndices indices = findQueueFamilies(gpuDevice);
     float queuePriority = 1.0f;
+    
+    indices = findQueueFamilies(gpuDevice);
 
     // std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 

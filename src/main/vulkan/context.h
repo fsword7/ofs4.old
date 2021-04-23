@@ -18,6 +18,8 @@ namespace osd::vk
         void createSurface(VkInstance instance);
         void destroyWindow();
 
+        void getWindowSize(int &width, int &height);
+
     protected:
         SDL_Window *window = nullptr;
         VkSurfaceKHR surface = nullptr;
@@ -34,6 +36,13 @@ namespace osd::vk
         }
     };
 
+    struct SwapChainSupportDetails
+    {
+        VkSurfaceCapabilitiesKHR capabiliies;
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR> presentModes;
+    };
+
     class Context : public SDL2_Interface
     {
     public:
@@ -45,6 +54,11 @@ namespace osd::vk
 
     private:
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice gpuDevice);
+        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice gpuDevice, VkSurfaceKHR surface);
+        VkSurfaceFormatKHR chooseSwapChainSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
+        VkPresentModeKHR chooseSwapChainPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
+        VkExtent2D chooseSwapChainExtent(const VkSurfaceCapabilitiesKHR capabilities);
+        // VkFormat findDepthFormat();
 
         // Physical GPU function setup calls
         void createInstance();
@@ -52,12 +66,34 @@ namespace osd::vk
         void createLogicalDevice();
 
         // Swapchain function setup calls
+        void createSwapChain();
+
+        void cleanupSwapChain(bool remove);
 
     private:
         VkInstance instance = nullptr;
         VkPhysicalDevice gpuDevice = nullptr;
         VkDevice device = nullptr;
+        QueueFamilyIndices indices;
 
+        VkSwapchainKHR swapChain = nullptr;
+        VkExtent2D swapChainExtent = { 0, 0 };
+        std::vector<VkImage> swapChainImages;
+        std::vector<VkImageView> swapChainImageViews;
+        VkFormat swapChainImageFormat = VK_FORMAT_UNDEFINED;
+
+        // color (immediste) image resources
+        VkImage colorImage = nullptr;
+        VkImageView colorImageView = nullptr;
+        VkDeviceMemory colorImageMemory = nullptr;
+        VkFormat colorImageFormat = VK_FORMAT_UNDEFINED;
+
+        // depth image resources
+        VkImage depthImage = nullptr;
+        VkImageView depthImageView = nullptr;
+        VkDeviceMemory depthImageMemory = nullptr;
+        VkFormat depthImageFormat = VK_FORMAT_UNDEFINED;
+     
         VkQueue graphicsQueue;
         VkQueue presentQueue;
     };

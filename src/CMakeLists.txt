@@ -6,6 +6,7 @@ set (ofs_srcs
     main/vulkan/context.cpp
     main/vulkan/sdl2.cpp
     main/vulkan/setup.cpp
+    main/vulkan/swapchain.cpp
 )
 
 add_executable(ofs ${ofs_srcs})

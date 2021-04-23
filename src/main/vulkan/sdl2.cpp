@@ -24,3 +24,8 @@ void SDL2_Interface::createSurface(VkInstance instance)
     if (!SDL_Vulkan_CreateSurface(window, instance, &surface))
         throw std::runtime_error("Can't create surface - aborted!");
 }
+
+void SDL2_Interface::getWindowSize(int &width, int &height)
+{
+    SDL_Vulkan_GetDrawableSize(window, &width, &height);
+}
