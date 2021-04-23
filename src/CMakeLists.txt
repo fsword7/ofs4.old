@@ -3,6 +3,8 @@ find_package(Vulkan REQUIRED)
 
 set (ofs_srcs
     main/sdl2/main.cpp
+    main/vulkan/context.cpp
+    main/vulkan/sdl2.cpp
 )
 
 add_executable(ofs ${ofs_srcs})
