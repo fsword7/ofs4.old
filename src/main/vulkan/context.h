@@ -60,6 +60,13 @@ namespace osd::vk
         VkExtent2D chooseSwapChainExtent(const VkSurfaceCapabilitiesKHR capabilities);
         // VkFormat findDepthFormat();
 
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags mpFlags, VkDeviceSize memSize);
+        void createImage(uint32_t width, uint32_t height, VkFormat format,
+            VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags mpFlags,
+            VkImage &image, VkDeviceMemory &imageMemory);
+        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+        void convertImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
         // Physical GPU function setup calls
         void createInstance();
         void getPhysicalGPUDevice();
@@ -67,6 +74,9 @@ namespace osd::vk
 
         // Swapchain function setup calls
         void createSwapChain();
+        void createImageViews();
+        void createColorResources();
+        void createDepthResources();
 
         void cleanupSwapChain(bool remove);
 
