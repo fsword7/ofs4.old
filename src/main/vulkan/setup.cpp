@@ -20,7 +20,8 @@ void Context::init()
     createSurface(instance);
     getPhysicalGPUDevice();
     createLogicalDevice();
-
+    createCommandPool();
+    
     createSwapChain();
 }
 
@@ -28,6 +29,7 @@ void Context::cleanup()
 {
     cleanupSwapChain(true);
 
+    vkDestroyCommandPool(device, cmdPool, nullptr);
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);

@@ -71,6 +71,7 @@ namespace osd::vk
         void createInstance();
         void getPhysicalGPUDevice();
         void createLogicalDevice();
+        void createCommandPool();
 
         // Swapchain function setup calls
         void createSwapChain();
@@ -84,6 +85,7 @@ namespace osd::vk
         VkInstance instance = nullptr;
         VkPhysicalDevice gpuDevice = nullptr;
         VkDevice device = nullptr;
+        VkCommandPool cmdPool = nullptr;
         QueueFamilyIndices indices;
 
         VkSwapchainKHR swapChain = nullptr;
