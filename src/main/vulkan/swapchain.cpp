@@ -281,3 +281,8 @@ void Context::createFrameBuffers()
             throw std::runtime_error("Can't create frame buffer - aborted!");
     }
 }
+
+void Context::createGraphicsCommandBuffers()
+{
+    
+}

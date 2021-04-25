@@ -67,6 +67,13 @@ namespace osd::vk
         void init();
         void cleanup();
 
+        // Render processing section
+        void initRender();
+        void cleanupRender();
+        void beginGraphicsCommandBuffer();
+        void beginRender();
+        void endRender();
+
     private:
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice gpuDevice);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice gpuDevice, VkSurfaceKHR surface);
@@ -103,6 +110,7 @@ namespace osd::vk
         void createDepthResources();
         void createRenderPass();
         void createFrameBuffers();
+        void createGraphicsCommandBuffers();
 
         void cleanupSwapChain(bool remove);
 
@@ -136,9 +144,17 @@ namespace osd::vk
         VkRenderPass renderPass = nullptr;
         std::vector<VkFramebuffer> frameBuffers;
         std::vector<FrameAttachment> frameAttachments;
-
+        std::vector<VkCommandBuffer> graphicsCommandBuffers;
         
         VkQueue graphicsQueue = nullptr;
         VkQueue presentQueue = nullptr;
+        std::vector<VkFence> fences;
+        VkSemaphore imageAvailableSemaphore = nullptr;
+        VkSemaphore renderFinishedSemaphore = nullptr;
+
+        VkPipelineStageFlags waitStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        VkSubmitInfo submitInfo = {};
+        VkPresentInfoKHR presentInfo = {};
+        uint32_t imageIndex = 0;
     };
 }
