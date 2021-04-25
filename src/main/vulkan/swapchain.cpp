@@ -6,17 +6,33 @@ using namespace osd::vk;
 
 void Context::cleanupSwapChain(bool remove)
 {
+    for (int idx = 0; idx < frameBuffers.size(); idx++)
+    {
+        // Release all color attachment images
+        vkDestroyImageView(device, frameAttachments[idx].color.view, nullptr);
+        vkDestroyImage(device, frameAttachments[idx].color.image, nullptr);
+        vkFreeMemory(device, frameAttachments[idx].color.memory, nullptr);
+
+        // Release all depth attachment images
+        vkDestroyImageView(device, frameAttachments[idx].depth.view, nullptr);
+        vkDestroyImage(device, frameAttachments[idx].depth.image, nullptr);
+        vkFreeMemory(device, frameAttachments[idx].depth.memory, nullptr);
+
+        // Release frame buffer
+        vkDestroyFramebuffer(device, frameBuffers[idx], nullptr);
+    }
+
     vkDestroyRenderPass(device, renderPass, nullptr);
 
     // Release all depth images
-    vkDestroyImageView(device, depthImageView, nullptr);
-    vkDestroyImage(device, depthImage, nullptr);
-    vkFreeMemory(device, depthImageMemory, nullptr);
+    // vkDestroyImageView(device, depthImageView, nullptr);
+    // vkDestroyImage(device, depthImage, nullptr);
+    // vkFreeMemory(device, depthImageMemory, nullptr);
 
     // Release all color images
-    vkDestroyImageView(device, colorImageView, nullptr);
-    vkDestroyImage(device, colorImage, nullptr);
-    vkFreeMemory(device, colorImageMemory, nullptr);
+    // vkDestroyImageView(device, colorImageView, nullptr);
+    // vkDestroyImage(device, colorImage, nullptr);
+    // vkFreeMemory(device, colorImageMemory, nullptr);
 
     // Release all surface images
     for (int idx = 0; idx < surfaceImageViews.size(); idx++)
@@ -98,9 +114,10 @@ void Context::createSwapChain()
     
     // Set up new resouces with new swap chain
     createImageViews();
-    createColorResources();
-    createDepthResources();
+    // createColorResources();
+    // createDepthResources();
     createRenderPass();
+    createFrameBuffers();
 }
 
 void Context::createImageViews()
@@ -150,19 +167,19 @@ void Context::createDepthResources()
 
 void Context::createRenderPass()
 {
-    // VkAttachmentDescription presentAttachment = {};
-    // presentAttachment.format = surfaceImageFormat;
-    // presentAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    // presentAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    // presentAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    // presentAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    // presentAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    // presentAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    // presentAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    VkAttachmentDescription presentAttachment = {};
+    presentAttachment.format = surfaceImageFormat;
+    presentAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    presentAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    presentAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    presentAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    presentAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    presentAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    presentAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-    // VkAttachmentReference presentAttachmentRef = {};
-    // presentAttachmentRef.attachment = 0;
-    // presentAttachmentRef.layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    VkAttachmentReference presentAttachmentRef = {};
+    presentAttachmentRef.attachment = 0;
+    presentAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 
     VkAttachmentDescription colorAttachment = {};
@@ -176,12 +193,12 @@ void Context::createRenderPass()
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkAttachmentReference colorAttachmentRef = {};
-    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.attachment = 1;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 
     VkAttachmentDescription depthAttachment = {};
-    depthAttachment.format = depthImageFormat;
+    depthAttachment.format = findDepthFormat();
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -191,14 +208,14 @@ void Context::createRenderPass()
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkAttachmentReference depthAttachmentRef = {};
-    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.attachment = 2;
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 
-    std::array<VkAttachmentDescription, 2> attachments =
-        { /* presentAttachment, */ colorAttachment, depthAttachment };
-    std::array<VkAttachmentReference, 1> attachmentRefs =
-        { /* presentAttachmentRef, */ colorAttachmentRef };
+    std::array<VkAttachmentDescription, 3> attachments =
+        { presentAttachment, colorAttachment, depthAttachment };
+    std::array<VkAttachmentReference, 2> attachmentRefs =
+        { presentAttachmentRef, colorAttachmentRef };
 
     VkSubpassDescription subpass = {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -227,5 +244,40 @@ void Context::createRenderPass()
 
     if (vkCreateRenderPass(device, &createInfo, nullptr, &renderPass) != VK_SUCCESS)
         throw std::runtime_error("Can't create render pass - aborted!");
-    
+}
+
+void Context::createFrameBuffers()
+{   
+    frameBuffers.resize(surfaceImages.size());
+    frameAttachments.resize(surfaceImages.size());
+    VkFormat depthFormat = findDepthFormat();
+
+    for (int idx = 0; idx < surfaceImages.size(); idx++)
+    {
+        createAttachmentImage(colorImageFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+            VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+            frameAttachments[idx].color);
+
+        createAttachmentImage(depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
+            VK_IMAGE_USAGE_SAMPLED_BIT, frameAttachments[idx].depth);
+
+        std::vector<VkImageView> attachments =
+        {
+            surfaceImageViews[idx],
+            frameAttachments[idx].color.view,
+            frameAttachments[idx].depth.view
+        };
+
+        VkFramebufferCreateInfo frameInfo = {};
+        frameInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        frameInfo.renderPass = renderPass;
+        frameInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        frameInfo.pAttachments = attachments.data();
+        frameInfo.width = static_cast<uint32_t>(surfaceImageExtent.width);
+        frameInfo.height = static_cast<uint32_t>(surfaceImageExtent.height);
+        frameInfo.layers = 1;
+
+        if (vkCreateFramebuffer(device, &frameInfo, nullptr, &frameBuffers[idx]) != VK_SUCCESS)
+            throw std::runtime_error("Can't create frame buffer - aborted!");
+    }
 }

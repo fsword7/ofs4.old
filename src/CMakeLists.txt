@@ -5,6 +5,7 @@ set (ofs_srcs
     main/sdl2/main.cpp
     main/vulkan/command.cpp
     main/vulkan/context.cpp
+    main/vulkan/image.cpp
     main/vulkan/sdl2.cpp
     main/vulkan/setup.cpp
     main/vulkan/swapchain.cpp

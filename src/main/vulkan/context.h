@@ -43,6 +43,21 @@ namespace osd::vk
         std::vector<VkPresentModeKHR> presentModes;
     };
 
+    struct FrameEntry
+    {
+        VkImage image = nullptr;
+        VkImageView view = nullptr;
+        VkDeviceMemory memory = nullptr;
+        VkFormat format = VK_FORMAT_UNDEFINED;
+        VkSampler sampler = nullptr;
+    };
+
+    struct FrameAttachment
+    {
+        FrameEntry color;
+        FrameEntry depth;
+    };
+
     class Context : public SDL2_Interface
     {
     public:
@@ -68,6 +83,7 @@ namespace osd::vk
             VkImage &image, VkDeviceMemory &imageMemory);
         VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         void convertImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+        void createAttachmentImage(VkFormat format, VkImageUsageFlags usageFlags, FrameEntry &attachment);
 
         VkFormat findDepthFormat();
 
@@ -86,6 +102,7 @@ namespace osd::vk
         void createColorResources();
         void createDepthResources();
         void createRenderPass();
+        void createFrameBuffers();
 
         void cleanupSwapChain(bool remove);
 
@@ -117,6 +134,9 @@ namespace osd::vk
         VkFormat depthImageFormat = VK_FORMAT_UNDEFINED;
      
         VkRenderPass renderPass = nullptr;
+        std::vector<VkFramebuffer> frameBuffers;
+        std::vector<FrameAttachment> frameAttachments;
+
         
         VkQueue graphicsQueue = nullptr;
         VkQueue presentQueue = nullptr;
