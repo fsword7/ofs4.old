@@ -118,7 +118,7 @@ namespace osd::vk
      
         VkRenderPass renderPass = nullptr;
         
-        VkQueue graphicsQueue;
-        VkQueue presentQueue;
+        VkQueue graphicsQueue = nullptr;
+        VkQueue presentQueue = nullptr;
     };
 }
