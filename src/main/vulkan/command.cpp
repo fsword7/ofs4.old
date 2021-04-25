@@ -20,6 +20,7 @@ VkCommandBuffer Context::beginSingleTimeCommands(VkCommandPool cmdPool)
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = cmdPool;
+    allocInfo.commandBufferCount = 1;
     
     VkCommandBuffer cmdBuffer;
     if (vkAllocateCommandBuffers(device, &allocInfo, &cmdBuffer) != VK_SUCCESS)

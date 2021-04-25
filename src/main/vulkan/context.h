@@ -58,14 +58,21 @@ namespace osd::vk
         VkSurfaceFormatKHR chooseSwapChainSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
         VkPresentModeKHR chooseSwapChainPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
         VkExtent2D chooseSwapChainExtent(const VkSurfaceCapabilitiesKHR capabilities);
-        // VkFormat findDepthFormat();
 
+        bool hasStencilComponent(VkFormat format);
+        VkFormat findSupportedFormats(std::vector<VkFormat> candidates,
+            VkImageTiling tiling, VkFormatFeatureFlags features);
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags mpFlags, VkDeviceSize memSize);
         void createImage(uint32_t width, uint32_t height, VkFormat format,
             VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags mpFlags,
             VkImage &image, VkDeviceMemory &imageMemory);
         VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         void convertImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
+        VkFormat findDepthFormat();
+
+        VkCommandBuffer beginSingleTimeCommands(VkCommandPool cmdPool);
+        void endSingleTimeCommands(VkCommandBuffer cmdBuffer, VkCommandPool cmdPool);
 
         // Physical GPU function setup calls
         void createInstance();
@@ -78,6 +85,7 @@ namespace osd::vk
         void createImageViews();
         void createColorResources();
         void createDepthResources();
+        void createRenderPass();
 
         void cleanupSwapChain(bool remove);
 
@@ -89,10 +97,12 @@ namespace osd::vk
         QueueFamilyIndices indices;
 
         VkSwapchainKHR swapChain = nullptr;
-        VkExtent2D swapChainExtent = { 0, 0 };
-        std::vector<VkImage> swapChainImages;
-        std::vector<VkImageView> swapChainImageViews;
-        VkFormat swapChainImageFormat = VK_FORMAT_UNDEFINED;
+
+        // surface image resources for swap chain process
+        VkExtent2D surfaceImageExtent = { 0, 0 };
+        std::vector<VkImage> surfaceImages;
+        std::vector<VkImageView> surfaceImageViews;
+        VkFormat surfaceImageFormat = VK_FORMAT_UNDEFINED;
 
         // color (immediste) image resources
         VkImage colorImage = nullptr;
@@ -106,6 +116,8 @@ namespace osd::vk
         VkDeviceMemory depthImageMemory = nullptr;
         VkFormat depthImageFormat = VK_FORMAT_UNDEFINED;
      
+        VkRenderPass renderPass = nullptr;
+        
         VkQueue graphicsQueue;
         VkQueue presentQueue;
     };
