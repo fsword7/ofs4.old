@@ -104,7 +104,7 @@ namespace osd::vk
         std::vector<VkImageView> surfaceImageViews;
         VkFormat surfaceImageFormat = VK_FORMAT_UNDEFINED;
 
-        // color (immediste) image resources
+        // color (immediate) image resources
         VkImage colorImage = nullptr;
         VkImageView colorImageView = nullptr;
         VkDeviceMemory colorImageMemory = nullptr;
