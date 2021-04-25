@@ -24,6 +24,16 @@ void Context::initRender()
     if (vkCreateSemaphore(device, &createInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS)
         throw std::runtime_error("Can't create render finished semaphoore - aborted!");
 
+    graphicsCommandBuffers.resize(surfaceImages.size());
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandBufferCount = static_cast<uint32_t>(graphicsCommandBuffers.size());
+    allocInfo.commandPool = cmdPool;
+
+     if (vkAllocateCommandBuffers(device, &allocInfo, graphicsCommandBuffers.data()) != VK_SUCCESS)
+        throw std::runtime_error("Can't allocate graphics command buffers - aborted!");
+    beginGraphicsCommandBuffer(graphicsCommandBuffers);
+
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = &imageAvailableSemaphore;
@@ -43,6 +53,8 @@ void Context::initRender()
 
 void Context::cleanupRender()
 {
+    vkFreeCommandBuffers(device, cmdPool, graphicsCommandBuffers.size(), graphicsCommandBuffers.data());
+
     vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
     vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
 
@@ -50,7 +62,7 @@ void Context::cleanupRender()
         vkDestroyFence(device, fences[idx], nullptr);
 }
 
-void Context::beginGraphicsCommandBuffer()
+void Context::beginGraphicsCommandBuffer(std::vector<VkCommandBuffer> &cmdBuffers)
 {
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -86,22 +98,21 @@ void Context::beginGraphicsCommandBuffer()
     scissor.offset.x = 0;
     scissor.offset.y = 0;
 
-    graphicsCommandBuffers.resize(surfaceImages.size());
-    for (int idx = 0; idx < surfaceImages.size(); idx++)
+    for (int idx = 0; idx < cmdBuffers.size(); idx++)
     {
-        vkResetCommandBuffer(graphicsCommandBuffers[idx], 0);
+        vkResetCommandBuffer(cmdBuffers[idx], 0);
         renderInfo.framebuffer = frameBuffers[idx];
 
-        vkBeginCommandBuffer(graphicsCommandBuffers[idx], &beginInfo);
+        vkBeginCommandBuffer(cmdBuffers[idx], &beginInfo);
 
-        vkCmdBeginRenderPass(graphicsCommandBuffers[idx], &renderInfo, VK_SUBPASS_CONTENTS_INLINE);
-        vkCmdSetViewport(graphicsCommandBuffers[idx], 0, 1, &viewport);
-        vkCmdSetScissor(graphicsCommandBuffers[idx], 0, 1, &scissor);
+        vkCmdBeginRenderPass(cmdBuffers[idx], &renderInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdSetViewport(cmdBuffers[idx], 0, 1, &viewport);
+        vkCmdSetScissor(cmdBuffers[idx], 0, 1, &scissor);
 
         // Rendering code here...
 
-        vkCmdEndRenderPass(graphicsCommandBuffers[idx]);
-        vkEndCommandBuffer(graphicsCommandBuffers[idx]);
+        vkCmdEndRenderPass(cmdBuffers[idx]);
+        vkEndCommandBuffer(cmdBuffers[idx]);
     }
 }
 
@@ -118,7 +129,7 @@ void Context::beginRender()
 
 void Context::endRender()
 {
-    // submitInfo.pCommandBuffers = &cmdGraphicsBuffers[imageIndex];
+    submitInfo.pCommandBuffers = &graphicsCommandBuffers[imageIndex];
     vkQueueSubmit(graphicsQueue, 1, &submitInfo, fences[imageIndex]);
     
     VkResult result = vkQueuePresentKHR(presentQueue, &presentInfo);

@@ -1,8 +1,10 @@
 
 #include "main/core.h"
 #include "main/vulkan/context.h"
+#include "render/scene.h"
 
 osd::vk::Context *ctx = nullptr;
+ofs::render::Scene *scene = nullptr;
 SDL_Window *window = nullptr;
 
 void init()
@@ -13,12 +15,20 @@ void init()
     window = ctx->createWindow(APP_SHORT, OFSW_WIDTH, OFSW_HEIGHT);
 
     ctx->init();
+
+    scene = new ofs::render::Scene(*ctx);
 }
 
 void cleanup()
 {
-    ctx->cleanup();
-    delete ctx;
+    if (scene != nullptr)
+        delete scene;
+
+    if (ctx != nullptr)
+    {
+        ctx->cleanup();
+        delete ctx;
+    }
 
     SDL_Quit();
 }
@@ -41,7 +51,7 @@ void run()
             }
         }
         // update();
-        // render();
+        scene->render();
     }
 
 }

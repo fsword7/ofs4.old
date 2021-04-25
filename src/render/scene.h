@@ -6,8 +6,8 @@ namespace ofs::render
     class Scene
     {
     public:
-        Scene(osd::vk::Context ctx);
-        ~Scene() = default;
+        Scene(osd::vk::Context &ctx);
+        ~Scene();
 
         void render();
 

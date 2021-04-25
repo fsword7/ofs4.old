@@ -70,7 +70,7 @@ namespace osd::vk
         // Render processing section
         void initRender();
         void cleanupRender();
-        void beginGraphicsCommandBuffer();
+        void beginGraphicsCommandBuffer(std::vector<VkCommandBuffer> &cmdBuffers);
         void beginRender();
         void endRender();
 
