@@ -1,13 +1,10 @@
 
 #include "main/core.h"
-#include "main/vulkan/context.h"
-#include "render/scene.h"
+#include "main/sdl2/coreapp.h"
 
-osd::vk::Context *ctx = nullptr;
-ofs::render::Scene *scene = nullptr;
-SDL_Window *window = nullptr;
+using namespace ofs::main;
 
-void init()
+void coreApplication::init()
 {
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -19,7 +16,7 @@ void init()
     scene = new ofs::render::Scene(*ctx);
 }
 
-void cleanup()
+void coreApplication::cleanup()
 {
     if (scene != nullptr)
         delete scene;
@@ -33,7 +30,7 @@ void cleanup()
     SDL_Quit();
 }
 
-void run()
+void coreApplication::run()
 {
     bool running = true;
 
@@ -60,9 +57,11 @@ int main(int argc, char **argv)
 {
     std::cout << "Welcome to Orbital Flight Simulator" << std::endl;
 
-    init();
-    run();
-    cleanup();
+    coreApplication app;
+
+    app.init();
+    app.run();
+    app.cleanup();
 
     return EXIT_SUCCESS;
 }

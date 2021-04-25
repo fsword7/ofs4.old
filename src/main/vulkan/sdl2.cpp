@@ -8,7 +8,7 @@ SDL_Window *SDL2_Interface::createWindow(cchar_t *appName, int width, int height
 {
     window = SDL_CreateWindow(appName, 
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        width, height, SDL_WINDOW_VULKAN);
+        width, height, SDL_WINDOW_VULKAN /* | SDL_WINDOW_RESIZABLE */);
     SDL_ShowWindow(window);
 
     return window;
