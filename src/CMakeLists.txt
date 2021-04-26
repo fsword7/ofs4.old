@@ -6,6 +6,7 @@ set (ofs_srcs
     main/vulkan/command.cpp
     main/vulkan/context.cpp
     main/vulkan/image.cpp
+    main/vulkan/pipeline.cpp
     main/vulkan/render.cpp
     main/vulkan/sdl2.cpp
     main/vulkan/setup.cpp

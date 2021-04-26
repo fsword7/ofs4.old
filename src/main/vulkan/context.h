@@ -60,6 +60,13 @@ namespace osd::vk
         FrameEntry depth;
     };
 
+    struct Vertex
+    {
+        float position[3];
+        float color[3];
+        float texcoord[2];
+    };
+
     class Context : public SDL2_Interface
     {
     public:
@@ -113,6 +120,8 @@ namespace osd::vk
         void createRenderPass();
         void createFrameBuffers();
 
+        void createPipeline();
+
         void cleanupSwapChain(bool remove);
 
     private:
@@ -157,5 +166,8 @@ namespace osd::vk
         VkSubmitInfo submitInfo = {};
         VkPresentInfoKHR presentInfo = {};
         uint32_t imageIndex = 0;
+
+        // Temporary - to be removed later when multi-pipeline package is implemented
+        VkPipelineLayout pipelineLayout = nullptr;
     };
 }

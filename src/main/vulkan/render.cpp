@@ -133,7 +133,9 @@ void Context::endRender()
     vkQueueSubmit(graphicsQueue, 1, &submitInfo, fences[imageIndex]);
     
     VkResult result = vkQueuePresentKHR(presentQueue, &presentInfo);
+    // Rebuild swap chain resources after window changed.
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
         createSwapChain();
+
     vkDeviceWaitIdle(device);
 }
