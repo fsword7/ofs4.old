@@ -7,7 +7,7 @@ using namespace osd::vk;
 void Context::cleanupSwapChain(bool remove)
 {
     stopRender();
-    
+
     for (int idx = 0; idx < frameBuffers.size(); idx++)
     {
         // Release all color attachment images
@@ -132,19 +132,19 @@ void Context::createImageViews()
             surfaceImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
-void Context::createColorResources()
-{
-    createImage(surfaceImageExtent.width, surfaceImageExtent.height, colorImageFormat,
-        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_STORAGE_BIT |
-        VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory);
-    colorImageView = createImageView(colorImage, colorImageFormat,
-        VK_IMAGE_ASPECT_COLOR_BIT);
-
-    convertImageLayout(colorImage, colorImageFormat, VK_IMAGE_LAYOUT_UNDEFINED,
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-}
+// void Context::createColorResources()
+// {
+//     createImage(surfaceImageExtent.width, surfaceImageExtent.height, colorImageFormat,
+//         VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_STORAGE_BIT |
+//         VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+//         VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+//         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory);
+//     colorImageView = createImageView(colorImage, colorImageFormat,
+//         VK_IMAGE_ASPECT_COLOR_BIT);
+//
+//     convertImageLayout(colorImage, colorImageFormat, VK_IMAGE_LAYOUT_UNDEFINED,
+//         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+// }
 
 VkFormat Context::findDepthFormat()
 {
@@ -153,20 +153,20 @@ VkFormat Context::findDepthFormat()
         VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 }
 
-void Context::createDepthResources()
-{
-    depthImageFormat = findDepthFormat();
-
-    createImage(surfaceImageExtent.width, surfaceImageExtent.height, depthImageFormat,
-        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
-        VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        depthImage, depthImageMemory);
-    depthImageView = createImageView(depthImage, depthImageFormat,
-        VK_IMAGE_ASPECT_DEPTH_BIT);
-
-    convertImageLayout(depthImage, depthImageFormat, VK_IMAGE_LAYOUT_UNDEFINED,
-        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-}
+// void Context::createDepthResources()
+// {
+//     depthImageFormat = findDepthFormat();
+//
+//     createImage(surfaceImageExtent.width, surfaceImageExtent.height, depthImageFormat,
+//         VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
+//         VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+//         depthImage, depthImageMemory);
+//     depthImageView = createImageView(depthImage, depthImageFormat,
+//         VK_IMAGE_ASPECT_DEPTH_BIT);
+//
+//     convertImageLayout(depthImage, depthImageFormat, VK_IMAGE_LAYOUT_UNDEFINED,
+//         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+// }
 
 void Context::createRenderPass()
 {

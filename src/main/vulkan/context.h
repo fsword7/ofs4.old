@@ -108,8 +108,8 @@ namespace osd::vk
         // Swapchain function setup calls
         void createSwapChain();
         void createImageViews();
-        void createColorResources();
-        void createDepthResources();
+        // void createColorResources();
+        // void createDepthResources();
         void createRenderPass();
         void createFrameBuffers();
 
@@ -131,15 +131,15 @@ namespace osd::vk
         VkFormat surfaceImageFormat = VK_FORMAT_UNDEFINED;
 
         // color (immediate) image resources
-        VkImage colorImage = nullptr;
-        VkImageView colorImageView = nullptr;
-        VkDeviceMemory colorImageMemory = nullptr;
+        // VkImage colorImage = nullptr;
+        // VkImageView colorImageView = nullptr;
+        // VkDeviceMemory colorImageMemory = nullptr;
         VkFormat colorImageFormat = VK_FORMAT_UNDEFINED;
 
         // depth image resources
-        VkImage depthImage = nullptr;
-        VkImageView depthImageView = nullptr;
-        VkDeviceMemory depthImageMemory = nullptr;
+        // VkImage depthImage = nullptr;
+        // VkImageView depthImageView = nullptr;
+        // VkDeviceMemory depthImageMemory = nullptr;
         VkFormat depthImageFormat = VK_FORMAT_UNDEFINED;
      
         VkRenderPass renderPass = nullptr;

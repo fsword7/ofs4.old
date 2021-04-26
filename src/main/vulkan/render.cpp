@@ -70,7 +70,7 @@ void Context::beginGraphicsCommandBuffer(std::vector<VkCommandBuffer> &cmdBuffer
     beginInfo.pInheritanceInfo = nullptr;
 
     VkClearValue clearValues[3] = {};
-    clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f }; // surface image
+    clearValues[0].color = { 0.0f, 0.5f, 0.5f, 1.0f }; // surface image
     clearValues[1].color = { 0.0f, 0.0f, 0.0f, 1.0f }; // color image
     clearValues[2].depthStencil = { 1.0f, 0 }; // depth image
 

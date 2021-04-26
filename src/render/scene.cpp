@@ -6,15 +6,6 @@
 using namespace osd::vk;
 using namespace ofs::render;
 
-Scene::Scene(Context &context)
-: ctx(context)
-{
-}
-
-Scene::~Scene()
-{
-}
-
 void Scene::render()
 {
     ctx.beginRender();
