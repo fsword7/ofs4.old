@@ -4,7 +4,7 @@
 
 using namespace osd::vk;
 
-void Context::initRender()
+void Context::startRender()
 {
     fences.resize(surfaceImages.size());
     for (int idx = 0; idx < surfaceImages.size(); idx++)
@@ -51,7 +51,7 @@ void Context::initRender()
     presentInfo.pResults = nullptr;
 }
 
-void Context::cleanupRender()
+void Context::stopRender()
 {
     vkFreeCommandBuffers(device, cmdPool, graphicsCommandBuffers.size(), graphicsCommandBuffers.data());
 

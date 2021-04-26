@@ -6,6 +6,8 @@ using namespace osd::vk;
 
 void Context::cleanupSwapChain(bool remove)
 {
+    stopRender();
+    
     for (int idx = 0; idx < frameBuffers.size(); idx++)
     {
         // Release all color attachment images
@@ -118,6 +120,7 @@ void Context::createSwapChain()
     // createDepthResources();
     createRenderPass();
     createFrameBuffers();
+    startRender();
 }
 
 void Context::createImageViews()
@@ -280,9 +283,4 @@ void Context::createFrameBuffers()
         if (vkCreateFramebuffer(device, &frameInfo, nullptr, &frameBuffers[idx]) != VK_SUCCESS)
             throw std::runtime_error("Can't create frame buffer - aborted!");
     }
-}
-
-void Context::createGraphicsCommandBuffers()
-{
-    
 }

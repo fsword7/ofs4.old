@@ -70,8 +70,8 @@ namespace osd::vk
         void cleanup();
 
         // Render processing section
-        void initRender();
-        void cleanupRender();
+        void startRender();
+        void stopRender();
         void beginGraphicsCommandBuffer(std::vector<VkCommandBuffer> &cmdBuffers);
         void beginRender();
         void endRender();
@@ -112,7 +112,6 @@ namespace osd::vk
         void createDepthResources();
         void createRenderPass();
         void createFrameBuffers();
-        void createGraphicsCommandBuffers();
 
         void cleanupSwapChain(bool remove);
 
