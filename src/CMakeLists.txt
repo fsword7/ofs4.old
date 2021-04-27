@@ -6,12 +6,15 @@ set (ofs_srcs
     main/vulkan/buffer.cpp
     main/vulkan/command.cpp
     main/vulkan/context.cpp
+    main/vulkan/demo.cpp
     main/vulkan/image.cpp
     main/vulkan/pipeline.cpp
     main/vulkan/render.cpp
     main/vulkan/sdl2.cpp
+    main/vulkan/shader.cpp
     main/vulkan/setup.cpp
     main/vulkan/swapchain.cpp
+    main/vulkan/texture.cpp
     render/scene.cpp
 )
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <filesystem>
 #include <array>
 #include <vector>
 #include <optional>
@@ -16,3 +17,5 @@
 typedef const char          cchar_t;
 typedef std::string         str_t;
 typedef const std::string   cstr_t;
+
+namespace fs = std::filesystem;

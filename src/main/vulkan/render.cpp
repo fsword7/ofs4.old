@@ -113,9 +113,9 @@ void Context::beginGraphicsCommandBuffer(std::vector<VkCommandBuffer> &cmdBuffer
 
         // Draw a demo triangle
         vkCmdBindPipeline(cmdBuffers[idx], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-        vkCmdBindVertexBuffers(cmdBuffers[idx], 0, 1, &vtxBuffer, offsets);
-        vkCmdBindIndexBuffer(cmdBuffers[idx], idxBuffer, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdDrawIndexed(cmdBuffers[idx], 3, 1, 0, 0, 0);
+        vkCmdBindVertexBuffers(cmdBuffers[idx], 0, 1, &vtxObject.buffer, offsets);
+        vkCmdBindIndexBuffer(cmdBuffers[idx], idxObject.buffer, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdDrawIndexed(cmdBuffers[idx], idxObject.entries, 1, 0, 0, 0);
 
         // Rendering code here...
 

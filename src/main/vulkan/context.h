@@ -67,6 +67,34 @@ namespace osd::vk
         float texcoord[2];
     };
 
+    struct Buffer
+    {
+        VkBuffer buffer = nullptr;
+        VkDeviceMemory memory = nullptr;
+        uint32_t entries = 0;
+        uint32_t size = 0;
+
+        VkSharingMode mode;
+        VkBufferUsageFlags usageFlags;
+        VkMemoryPropertyFlags mpFlags;
+
+        void *mapped = nullptr;
+    };
+
+    struct Texture
+    {
+        Buffer buffer;
+        uint32_t width;
+        uint32_t height;
+
+        VkFormat format = VK_FORMAT_UNDEFINED;
+        VkImage image = nullptr;
+        VkImageView view = nullptr;
+        VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        VkDeviceMemory memory = nullptr;
+        VkSampler sampler = nullptr;
+    };
+
     class Context : public SDL2_Interface
     {
     public:
@@ -184,15 +212,8 @@ namespace osd::vk
         VkShaderModule vertShader = nullptr;
         VkShaderModule fragShader = nullptr;
 
-        VkBuffer vtxBuffer = nullptr;
-        VkDeviceMemory vtxMemory = nullptr;
-        uint32_t vtxSize = 0;
-        void *vtxMapped = nullptr;
-
-        VkBuffer idxBuffer = nullptr;
-        VkDeviceMemory idxMemory = nullptr;
-        uint32_t idxSize = 0;
-        void *idxMapped = nullptr;
-     
+        Buffer vtxObject;
+        Buffer idxObject;
+        Texture txObject;     
     };
 }
