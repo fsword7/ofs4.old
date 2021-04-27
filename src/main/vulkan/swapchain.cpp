@@ -7,7 +7,8 @@ using namespace osd::vk;
 void Context::cleanupSwapChain(bool remove)
 {
     stopRender();
-
+    cleanupPipeline();
+    
     for (int idx = 0; idx < frameBuffers.size(); idx++)
     {
         // Release all color attachment images
@@ -120,6 +121,7 @@ void Context::createSwapChain()
     // createDepthResources();
     createRenderPass();
     createFrameBuffers();
+    createPipeline();
     startRender();
 }
 

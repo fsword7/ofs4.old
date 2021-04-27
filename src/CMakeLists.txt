@@ -3,6 +3,7 @@ find_package(Vulkan REQUIRED)
 
 set (ofs_srcs
     main/sdl2/main.cpp
+    main/vulkan/buffer.cpp
     main/vulkan/command.cpp
     main/vulkan/context.cpp
     main/vulkan/image.cpp

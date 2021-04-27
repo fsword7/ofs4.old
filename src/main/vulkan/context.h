@@ -83,6 +83,12 @@ namespace osd::vk
         void beginRender();
         void endRender();
 
+        uint32_t findMemoryType(const VkPhysicalDeviceMemoryProperties &props, uint32_t typeFilter,
+            VkMemoryPropertyFlags mpFlags);
+        void createBuffer(const VkDevice &device, const VkPhysicalDeviceMemoryProperties &props,
+            VkBuffer &buffer, VkDeviceMemory &memory, VkDeviceSize size, VkBufferUsageFlags usageFlags,
+            VkSharingMode sharingMode, VkMemoryPropertyFlags mpFlags);
+        
     private:
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice gpuDevice);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice gpuDevice, VkSurfaceKHR surface);
@@ -101,8 +107,12 @@ namespace osd::vk
         void convertImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
         void createAttachmentImage(VkFormat format, VkImageUsageFlags usageFlags, FrameEntry &attachment);
 
+        void createBuffer();
+        
         VkFormat findDepthFormat();
 
+        void readShaderFile(const std::string &fname, char *&data, uint32_t &size);
+        
         VkCommandBuffer beginSingleTimeCommands(VkCommandPool cmdPool);
         void endSingleTimeCommands(VkCommandBuffer cmdBuffer, VkCommandPool cmdPool);
 
@@ -122,6 +132,7 @@ namespace osd::vk
 
         void createPipeline();
 
+        void cleanupPipeline();
         void cleanupSwapChain(bool remove);
 
     private:
@@ -169,5 +180,19 @@ namespace osd::vk
 
         // Temporary - to be removed later when multi-pipeline package is implemented
         VkPipelineLayout pipelineLayout = nullptr;
+        VkPipeline graphicsPipeline = nullptr;
+        VkShaderModule vertShader = nullptr;
+        VkShaderModule fragShader = nullptr;
+
+        VkBuffer vtxBuffer = nullptr;
+        VkDeviceMemory vtxMemory = nullptr;
+        uint32_t vtxSize = 0;
+        void *vtxMapped = nullptr;
+
+        VkBuffer idxBuffer = nullptr;
+        VkDeviceMemory idxMemory = nullptr;
+        uint32_t idxSize = 0;
+        void *idxMapped = nullptr;
+     
     };
 }

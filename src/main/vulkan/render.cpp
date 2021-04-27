@@ -70,7 +70,7 @@ void Context::beginGraphicsCommandBuffer(std::vector<VkCommandBuffer> &cmdBuffer
     beginInfo.pInheritanceInfo = nullptr;
 
     VkClearValue clearValues[3] = {};
-    clearValues[0].color = { 0.0f, 0.5f, 0.5f, 1.0f }; // surface image
+    clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f }; // surface image
     clearValues[1].color = { 0.0f, 0.0f, 0.0f, 1.0f }; // color image
     clearValues[2].depthStencil = { 1.0f, 0 }; // depth image
 
@@ -98,6 +98,8 @@ void Context::beginGraphicsCommandBuffer(std::vector<VkCommandBuffer> &cmdBuffer
     scissor.offset.x = 0;
     scissor.offset.y = 0;
 
+    VkDeviceSize offsets[] = { 0 };
+
     for (int idx = 0; idx < cmdBuffers.size(); idx++)
     {
         vkResetCommandBuffer(cmdBuffers[idx], 0);
@@ -108,6 +110,12 @@ void Context::beginGraphicsCommandBuffer(std::vector<VkCommandBuffer> &cmdBuffer
         vkCmdBeginRenderPass(cmdBuffers[idx], &renderInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdSetViewport(cmdBuffers[idx], 0, 1, &viewport);
         vkCmdSetScissor(cmdBuffers[idx], 0, 1, &scissor);
+
+        // Draw a demo triangle
+        vkCmdBindPipeline(cmdBuffers[idx], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+        vkCmdBindVertexBuffers(cmdBuffers[idx], 0, 1, &vtxBuffer, offsets);
+        vkCmdBindIndexBuffer(cmdBuffers[idx], idxBuffer, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdDrawIndexed(cmdBuffers[idx], 3, 1, 0, 0, 0);
 
         // Rendering code here...
 
