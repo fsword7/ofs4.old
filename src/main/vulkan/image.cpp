@@ -6,7 +6,7 @@ using namespace osd::vk;
 
 void Context::createImage(uint32_t width, uint32_t height, VkFormat format,
     VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags mpFlags,
-    VkImage &image, VkDeviceMemory &imageMemory)
+    VkImage &image, VkDeviceMemory &imageMemory, VkImageLayout layout)
 {
     VkImageCreateInfo imageInfo = {};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -18,7 +18,7 @@ void Context::createImage(uint32_t width, uint32_t height, VkFormat format,
     imageInfo.arrayLayers = 1;
     imageInfo.format = format;
     imageInfo.tiling = tiling;
-    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageInfo.initialLayout = layout;
     imageInfo.usage = usageFlags;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -59,6 +59,30 @@ VkImageView Context::createImageView(VkImage image, VkFormat format, VkImageAspe
         throw std::runtime_error("Can't create image view - aborted!");
 
     return imageView;
+}
+
+void Context::createImageSampler(const VkDevice &device, const VkImage &image, VkFormat format,
+	VkImageView &view, VkSampler &sampler)
+{
+	view = createImageView(image, format, VK_IMAGE_ASPECT_COLOR_BIT);
+
+	VkSamplerCreateInfo samplerInfo = {};
+	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerInfo.maxAnisotropy = 1.0f;
+	samplerInfo.anisotropyEnable = VK_FALSE;
+	samplerInfo.magFilter = VK_FILTER_NEAREST;
+	samplerInfo.minFilter = VK_FILTER_NEAREST;
+	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.mipLodBias = 0.0f;
+	samplerInfo.compareOp = VK_COMPARE_OP_NEVER;
+	samplerInfo.minLod = 0.0f;
+	samplerInfo.maxLod = 1.0f;
+	samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+	
+	vkCreateSampler(device, &samplerInfo, nullptr, &sampler);
 }
 
 void Context::convertImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
@@ -178,6 +202,128 @@ void Context::convertImageLayout(VkImage image, VkFormat format, VkImageLayout o
 		1, &barrier);
 
 	endSingleTimeCommands(cmdBuffer, cmdPool);
+}
+
+void Context::convertImageLayout(const VkCommandBuffer &cmdBuffer, VkImage image,
+	VkImageLayout oldLayout, VkImageLayout newLayout, VkImageSubresourceRange range)
+{
+	VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+	VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+
+	VkImageMemoryBarrier barrier  = {};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.image = image;
+	barrier.subresourceRange = range;
+	barrier.oldLayout = oldLayout;
+	barrier.newLayout = newLayout;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+	// Set up source properties
+	// if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED)
+	// {
+	// 	barrier.srcAccessMask = 0;
+	// 	srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+	// }
+	// else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+	// {
+	// 	barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	// 	srcStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	// }
+	// else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+	// {
+	// 	barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+	// 	srcStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	// }
+	// else if (oldLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+	// {
+	// 	barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+	//               	  	  	    VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	// 	srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	// }
+	// else if (oldLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+	// {
+	// 	barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	// 	srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	// }
+	// else if (oldLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+	// {
+	// 	barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+	//               	  	  	    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	// 	srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	// }
+	// else if (oldLayout == VK_IMAGE_LAYOUT_GENERAL)
+	// {
+	// 	barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT |
+	// 							VK_ACCESS_SHADER_WRITE_BIT;
+	// 	srcStageMask = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+	// }
+	// else
+	// 	throw std::runtime_error("Unsupported source layout transition!");
+
+	// Set up destination properties
+	// if (newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+	// {
+	// 	barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	// 	dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	// }
+	// else if (newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+	// {
+	// 	barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+	// 	dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	// }
+	// else if (newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+	// {
+	// 	barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	// 	dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	// }
+	// else if (newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+	// {
+	// 	barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+	// 							VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	// 	dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	// }
+	// else if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+	// {
+	// 	barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+	// 							VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	// 	dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	// }
+	// else if (newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+	// {
+	// 	barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	// 	dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	// }
+	// else if (newLayout == VK_IMAGE_LAYOUT_GENERAL)
+	// {
+	// 	barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT |
+	// 							VK_ACCESS_SHADER_WRITE_BIT;
+	// 	dstStageMask = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+	// }
+	// else
+	// 	throw std::runtime_error("Unsupported destination layout transition!");
+
+	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
+		newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+	{
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+		srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	}
+	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL &&
+			 newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+	{
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		srcStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	}
+
+	vkCmdPipelineBarrier(cmdBuffer, srcStageMask, dstStageMask,
+		0, 0, nullptr, 0, nullptr, 1, &barrier);
 }
 
 void Context::createAttachmentImage(VkFormat format, VkImageUsageFlags usageFlags,

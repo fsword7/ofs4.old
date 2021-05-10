@@ -65,9 +65,44 @@ namespace osd::vk
         float position[3];
         float color[3];
         float texcoord[2];
+
+        static VkVertexInputBindingDescription getBindingDescription()
+        {
+            VkVertexInputBindingDescription bindingDescription = {};
+            bindingDescription.binding = 0;
+            bindingDescription.stride = sizeof(Vertex);
+            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+            return bindingDescription;
+        }
+
+        static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
+        {
+            std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
+
+            // position
+            attributeDescriptions[0].binding = 0;
+            attributeDescriptions[0].location = 0;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[0].offset = offsetof(Vertex, position);
+
+            // color
+            attributeDescriptions[1].binding = 0;
+            attributeDescriptions[1].location = 1;
+            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+            // texcoord
+            attributeDescriptions[0].binding = 0;
+            attributeDescriptions[0].location = 2;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[0].offset = offsetof(Vertex, texcoord);
+
+            return attributeDescriptions;
+        }
     };
 
-    struct Buffer
+    struct sBuffer
     {
         VkBuffer buffer = nullptr;
         VkDeviceMemory memory = nullptr;
@@ -81,11 +116,12 @@ namespace osd::vk
         void *mapped = nullptr;
     };
 
-    struct Texture
+    struct sTexture
     {
-        Buffer buffer;
+        sBuffer buffer;
         uint32_t width;
         uint32_t height;
+        uint32_t size;
 
         VkFormat format = VK_FORMAT_UNDEFINED;
         VkImage image = nullptr;
@@ -111,12 +147,29 @@ namespace osd::vk
         void beginRender();
         void endRender();
 
+        inline const VkPhysicalDevice getPhysicalDevice() const { return gpuDevice; }
+        inline const VkDevice getLogicalDevice() const { return device; }
+        inline const VkExtent2D getSurfaceExtent() const { return surfaceImageExtent; }
+        inline const std::vector<VkImageView> &getSurfaceImageViews() const { return surfaceImageViews; }
+        
+        inline const VkFormat getSurfaceImageFormat() const { return surfaceImageFormat; }
+        inline const VkFormat getColorImageFormat(int idx = 0) const { return frameAttachments[idx].color.format; }
+        inline const VkFormat getDepthImageFormat(int idx = 0) const { return frameAttachments[idx].depth.format; }
+        inline const VkImageView &getColorImageView(int idx = 0) const { return frameAttachments[idx].color.view; }
+        inline const VkImageView &getDepthImageView(int idx = 0) const { return frameAttachments[idx].depth.view; }
+
         uint32_t findMemoryType(const VkPhysicalDeviceMemoryProperties &props, uint32_t typeFilter,
             VkMemoryPropertyFlags mpFlags);
         void createBuffer(const VkDevice &device, const VkPhysicalDeviceMemoryProperties &props,
             VkBuffer &buffer, VkDeviceMemory &memory, VkDeviceSize size, VkBufferUsageFlags usageFlags,
             VkSharingMode sharingMode, VkMemoryPropertyFlags mpFlags);
-        
+        void createTexture(const VkPhysicalDevice &gpu, const VkDevice &device);
+
+        void createImageSampler(const VkDevice &device, const VkImage &image, VkFormat format,
+            VkImageView &view, VkSampler &sampler);
+        void convertImageLayout(const VkCommandBuffer &cmdBuffer, VkImage image,
+	        VkImageLayout oldLayout, VkImageLayout newLayout, VkImageSubresourceRange range);
+
     private:
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice gpuDevice);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice gpuDevice, VkSurfaceKHR surface);
@@ -130,7 +183,7 @@ namespace osd::vk
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags mpFlags, VkDeviceSize memSize);
         void createImage(uint32_t width, uint32_t height, VkFormat format,
             VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags mpFlags,
-            VkImage &image, VkDeviceMemory &imageMemory);
+            VkImage &image, VkDeviceMemory &imageMemory, VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED);
         VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         void convertImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
         void createAttachmentImage(VkFormat format, VkImageUsageFlags usageFlags, FrameEntry &attachment);
@@ -212,8 +265,8 @@ namespace osd::vk
         VkShaderModule vertShader = nullptr;
         VkShaderModule fragShader = nullptr;
 
-        Buffer vtxObject;
-        Buffer idxObject;
-        Texture txObject;     
+        sBuffer vtxObject;
+        sBuffer idxObject;
+        sTexture txObject;     
     };
 }
