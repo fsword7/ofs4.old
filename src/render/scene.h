@@ -1,8 +1,12 @@
 
 #pragma once
 
+#include "render/pipelines/demo.h"
+
 namespace ofs::render
 {
+    using namespace osd::vk;
+
     class Scene
     {
     public:
@@ -12,10 +16,13 @@ namespace ofs::render
         
         ~Scene() = default;
 
+        void init();
         void render();
 
     private:
         osd::vk::Context &ctx;
+
+        Pipeline *demoPipeline = nullptr;
 
     };
 }

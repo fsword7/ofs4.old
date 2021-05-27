@@ -143,21 +143,27 @@ namespace osd::vk
         // Render processing section
         void startRender();
         void stopRender();
-        void beginGraphicsCommandBuffer(std::vector<VkCommandBuffer> &cmdBuffers);
-        void beginRender();
-        void endRender();
+        // void beginGraphicsCommandBuffer(std::vector<VkCommandBuffer> &cmdBuffers);
+        VkCommandBuffer beginRender();
+        void endRender(VkCommandBuffer);
+        void endRender(VkCommandBuffer cmdBuffer, VkSemaphore signal);
 
         inline const VkPhysicalDevice getPhysicalDevice() const { return gpuDevice; }
         inline const VkDevice getLogicalDevice() const { return device; }
         inline const VkExtent2D getSurfaceExtent() const { return surfaceImageExtent; }
         inline const std::vector<VkImageView> &getSurfaceImageViews() const { return surfaceImageViews; }
-        
+        inline const VkRenderPass getRenderPass() const { return renderPass; }
+        inline const VkFramebuffer getFrameBuffer(int idx) const { return frameBuffers[idx]; }
+
         inline const VkFormat getSurfaceImageFormat() const { return surfaceImageFormat; }
         inline const VkFormat getColorImageFormat(int idx = 0) const { return frameAttachments[idx].color.format; }
         inline const VkFormat getDepthImageFormat(int idx = 0) const { return frameAttachments[idx].depth.format; }
         inline const VkImageView &getColorImageView(int idx = 0) const { return frameAttachments[idx].color.view; }
         inline const VkImageView &getDepthImageView(int idx = 0) const { return frameAttachments[idx].depth.view; }
 
+        inline const VkQueue getGraphicsQueue() const { return graphicsQueue; }
+        inline const VkQueue getPresentQueue() const  { return presentQueue; }
+        
         uint32_t findMemoryType(const VkPhysicalDeviceMemoryProperties &props, uint32_t typeFilter,
             VkMemoryPropertyFlags mpFlags);
         void createBuffer(const VkDevice &device, const VkPhysicalDeviceMemoryProperties &props,
@@ -192,7 +198,7 @@ namespace osd::vk
         
         VkFormat findDepthFormat();
 
-        void readShaderFile(const std::string &fname, char *&data, uint32_t &size);
+        // void readShaderFile(const std::string &fname, char *&data, uint32_t &size);
         
         VkCommandBuffer beginSingleTimeCommands(VkCommandPool cmdPool);
         void endSingleTimeCommands(VkCommandBuffer cmdBuffer, VkCommandPool cmdPool);
@@ -211,9 +217,9 @@ namespace osd::vk
         void createRenderPass();
         void createFrameBuffers();
 
-        void createPipeline();
+        // void createPipeline();
 
-        void cleanupPipeline();
+        // void cleanupPipeline();
         void cleanupSwapChain(bool remove);
 
     private:

@@ -2,6 +2,7 @@
 #pragma once
 
 #include "main/vulkan/context.h"
+#include "main/vulkan/shader.h"
 
 namespace osd::vk
 {
@@ -17,17 +18,22 @@ namespace osd::vk
 
     public:
         Pipeline() = default;
+        Pipeline(Context *ctx) : ctx(ctx), device(ctx->getLogicalDevice()) {}
         virtual ~Pipeline() = default;
 
         inline VkPipeline getPipeline() const { return pipeline; }
         
-        void init(Context *context);
-        void cleanup();
+        virtual void init();
+        virtual void cleanup();
         void rebuildSwapChain();
 
+        // virtual void recordCommands(const VkCommandBuffer &cmdBuffer);
+        virtual void render(VkSemaphore waitSignal);
+        virtual void render(const VkCommandBuffer &cmdBuffer);
+
     protected:
-        void createRenderPass();
-        void createFramebuffers();
+        // void createRenderPass();
+        // void createFramebuffers();
         void createPipeline();
         void createDescriptorSet();
 
@@ -36,8 +42,8 @@ namespace osd::vk
 
         VkDevice device = nullptr;
 
-        VkRenderPass renderPass;
-        std::vector<VkFramebuffer> frameBuffers;
+        // VkRenderPass renderPass;
+        // std::vector<VkFramebuffer> frameBuffers;
         VkPipelineLayout pipelineLayout = nullptr;
         VkPipeline pipeline = nullptr;
 
@@ -46,5 +52,9 @@ namespace osd::vk
         VkDescriptorSet descriptorSet;
 
         std::vector<Descriptor> descriptorInfos;
+
+        VkSubmitInfo submitInfo = {};
+
+        Shader *shader = nullptr;
     };
 }

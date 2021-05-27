@@ -6,13 +6,19 @@
 using namespace osd::vk;
 using namespace ofs::render;
 
+void Scene::init()
+{
+    demoPipeline = new PipelineTriangle(&ctx);
+    // demoPipeline->init();
+}
+
 void Scene::render()
 {
-    ctx.beginRender();
+    VkCommandBuffer cmdBuffer = ctx.beginRender();
 
     ///////////////////////
     // Rendering codes here
     ///////////////////////
 
-    ctx.endRender();
+    ctx.endRender(cmdBuffer);
 }

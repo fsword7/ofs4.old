@@ -14,6 +14,7 @@ void coreApplication::init()
     ctx->init();
 
     scene = new ofs::render::Scene(*ctx);
+    scene->init();
 }
 
 void coreApplication::cleanup()

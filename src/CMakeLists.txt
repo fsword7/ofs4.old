@@ -15,6 +15,8 @@ set (ofs_srcs
     main/vulkan/setup.cpp
     main/vulkan/swapchain.cpp
     main/vulkan/texture.cpp
+    render/pipelines/demo.cpp
+    render/pipelines/star.cpp
     render/scene.cpp
 )
 
