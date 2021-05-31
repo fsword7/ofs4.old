@@ -2,6 +2,7 @@ find_package(SDL2 REQUIRED)
 find_package(Vulkan REQUIRED)
 
 set (ofs_srcs
+    engine/object.cpp
     main/sdl2/main.cpp
     main/vulkan/buffer.cpp
     main/vulkan/command.cpp
@@ -18,6 +19,7 @@ set (ofs_srcs
     render/pipelines/demo.cpp
     render/pipelines/star.cpp
     render/scene.cpp
+    universe/celobject.cpp
 )
 
 add_executable(ofs ${ofs_srcs})
