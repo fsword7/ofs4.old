@@ -5,16 +5,23 @@
 
 namespace osd::vk
 {
+    struct ShaderFiles
+    {
+        fs::path fname;
+        VkShaderStageFlags flags;
+    };
+
     class Shader
     {
     public:
         using code_t = std::vector<char>;
 
-        Shader() = default;
-        ~Shader() = default;
+        Shader(Context *context, const fs::path &vertexFile, const fs::path &fragmentFile);
+        virtual ~Shader();
 
         virtual void cleanup();
 
+        void loadShaders(fs::path vertexFile, fs::path fragmentFile);
         bool readShaderFile(fs::path fname, code_t &image);
 
         const std::vector<VkPipelineShaderStageCreateInfo> &getShaderStageInfos() const { return shaderStageInfos; }
@@ -31,8 +38,10 @@ namespace osd::vk
         const VkPipelineDynamicStateCreateInfo &getDynamicInfo() const { return dynamicInfo; }
 
     protected:
+        VkShaderModule createShaderModule(const code_t &code);
+
         // Virtual function calls
-        virtual void loadShaders(fs::path fname);
+        // virtual void loadShaders(fs::path fname);
 
         virtual void createVertexBinding();
         virtual void createVertexAttributes();
@@ -47,6 +56,7 @@ namespace osd::vk
 
     protected:
         Context *ctx = nullptr;
+        VkDevice device = nullptr;
 
         std::vector<VkShaderModule> shaders;
         VkShaderModule vertexShaderModule = nullptr;
@@ -68,5 +78,8 @@ namespace osd::vk
         VkPipelineColorBlendStateCreateInfo colorBlendInfo;
         std::vector<VkDynamicState> dynamicStates;
         VkPipelineDynamicStateCreateInfo dynamicInfo;
+
+        VkShaderModule vertexModule = nullptr;
+        VkShaderModule fragmentModule = nullptr;
     };
 }

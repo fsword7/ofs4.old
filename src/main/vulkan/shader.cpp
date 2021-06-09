@@ -5,6 +5,32 @@
 
 using namespace osd::vk;
 
+Shader::Shader(Context *context, const fs::path &vertexFile, const fs::path &fragmentFile)
+: ctx(context), device(ctx->getLogicalDevice())
+{
+    loadShaders(vertexFile, fragmentFile);
+
+    createVertexInputs();
+    createInputAssembly();
+    createViewportState();
+    createRasterizerState();
+    createMultisampleState();
+    createDepthStencilState();
+    createBlendState();
+    createDynamicState();
+}
+
+Shader::~Shader()
+{
+    cleanup();
+}
+
+void Shader::cleanup()
+{
+    vkDestroyShaderModule(device, vertexModule, nullptr);
+    vkDestroyShaderModule(device, fragmentModule, nullptr);
+}
+
 bool Shader::readShaderFile(fs::path fname, code_t &code)
 {
     std::ifstream file(fname, std::ios::ate|std::ios::binary);
@@ -23,9 +49,53 @@ bool Shader::readShaderFile(fs::path fname, code_t &code)
     return true;
 }
 
-void Shader::loadShaders(fs::path fname)
+VkShaderModule Shader::createShaderModule(const code_t &code)
+{
+    VkShaderModuleCreateInfo moduleInfo = {};
+    moduleInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    moduleInfo.codeSize = code.size();
+    moduleInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+
+    VkShaderModule shaderModule;
+    if (vkCreateShaderModule(device, &moduleInfo, nullptr, &shaderModule) != VK_SUCCESS)
+        throw std::runtime_error("Can't create shader module - aborted!");
+    return shaderModule;
+}
+
+void Shader::loadShaders(fs::path vertexFile, fs::path fragmentFile)
 {
 
+    if (!vertexFile.empty())
+    {
+        code_t code;
+
+        readShaderFile(vertexFile, code);
+        vertexModule = createShaderModule(code);
+
+        VkPipelineShaderStageCreateInfo stageInfo = {};
+        stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        stageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+        stageInfo.module = vertexModule;
+        stageInfo.pName = "main";
+
+        shaderStageInfos.push_back(stageInfo);
+    }
+
+    if (!fragmentFile.empty())
+    {
+        code_t code;
+
+        readShaderFile(fragmentFile, code);
+        fragmentModule = createShaderModule(code);
+
+        VkPipelineShaderStageCreateInfo stageInfo = {};
+        stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        stageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+        stageInfo.module = fragmentModule;
+        stageInfo.pName = "main";
+
+        shaderStageInfos.push_back(stageInfo);
+    }
 }
 
 void Shader::createVertexBinding()
