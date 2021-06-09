@@ -19,7 +19,9 @@ set (ofs_srcs
     render/pipelines/demo.cpp
     render/pipelines/star.cpp
     render/scene.cpp
-    universe/celobject.cpp
+    universe/object.cpp
+    universe/surface.cpp
+    utils/sphere.cpp
 )
 
 add_executable(ofs ${ofs_srcs})
