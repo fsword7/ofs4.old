@@ -1,5 +1,6 @@
 find_package(SDL2 REQUIRED)
 find_package(Vulkan REQUIRED)
+find_package(ZLIB REQUIRED)
 
 set (ofs_srcs
     engine/object.cpp
@@ -24,6 +25,13 @@ set (ofs_srcs
     utils/sphere.cpp
 )
 
+set (buildstars_srcs
+    tools/particles/main.cpp
+)
+
 add_executable(ofs ${ofs_srcs})
-target_link_libraries(ofs SDL2::SDL2 Vulkan::Vulkan)
+target_link_libraries(ofs SDL2::SDL2 Vulkan::Vulkan ZLIB::ZLIB)
 add_definitions(-DSDL_MAIN_HANDLED)
+
+add_executable(buildstars ${buildstars_srcs})
+target_link_libraries(buildstars ZLIB::ZLIB)
