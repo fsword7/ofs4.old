@@ -27,6 +27,7 @@ set (ofs_srcs
 
 set (buildstars_srcs
     tools/particles/main.cpp
+    utils/fileio.cpp
 )
 
 add_executable(ofs ${ofs_srcs})
