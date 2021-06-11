@@ -31,18 +31,3 @@ void DataLoader::loadMoreData(fs::path path)
             loadFile(fs::path(file));
     }
 }
-
-std::vector<std::string> DataLoader::split(const std::string &line, const std::string &delimitor)
-{
-    std::vector<std::string> fields;
-    size_t next, pos = 0;
-
-    while ((next = line.find(delimitor, pos)) != std::string::npos)
-    {
-        fields.push_back(line.substr(pos, next - pos));
-        pos = next+1;
-    }
-    fields.push_back(line.substr(pos));
-
-    return fields;
-}
