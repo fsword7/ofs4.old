@@ -1,6 +1,8 @@
 
 #include "utils/fileio.h"
 
+#pragma once
+
 namespace ofs::data
 {
     using namespace utils;

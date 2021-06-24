@@ -8,8 +8,19 @@ using namespace ofs::data;
 bool GaiaDataProvider::addStar(const std::string &line)
 {
     std::vector<std::string> tokens = split(line, ",");
-    
-    return false;
+
+    if (tokens[9].empty())
+        return false;
+
+    // Solution ID
+    uint32_t solutionid = std::stof(tokens[2]);
+
+    // Parallex
+    double parallax = std::stod(tokens[9]);
+    double plxerr = std::stod(tokens[10]);
+    // double appmag = std::stod(tokens[0]);
+
+    return true;
 }
 
 void GaiaDataProvider::loadFile(std::ifstream &inFile)

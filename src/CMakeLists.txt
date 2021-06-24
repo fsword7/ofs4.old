@@ -28,6 +28,7 @@ set (ofs_srcs
 set (buildstars_srcs
     data/data.cpp
     data/gaia.cpp
+    data/hippacros.cpp
     tools/particles/main.cpp
     utils/fileio.cpp
 )
